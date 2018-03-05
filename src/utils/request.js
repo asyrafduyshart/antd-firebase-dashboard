@@ -75,6 +75,7 @@ export default function request(url, options) {
       return response.json();
     })
     .catch((e) => {
+      console.error(e);
       const { dispatch } = store;
       const status = e.name;
       if (status === 401) {

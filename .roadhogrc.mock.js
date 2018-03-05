@@ -15,10 +15,10 @@ const noProxy = process.env.NO_PROXY === 'true';
 const proxy = {
   // 支持值为 Object 和 Array
   'GET /api/currentUser': {
-    $desc: "获取当前用户接口",
+    $desc: "Get the current user interface",
     $params: {
       pageSize: {
-        desc: '分页',
+        desc: 'Pagination',
         exp: 2,
       },
     },
