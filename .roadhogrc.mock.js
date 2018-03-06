@@ -1,4 +1,3 @@
-import mockjs from 'mockjs';
 import faker from 'faker';
 import { getRule, postRule } from './mock/rule';
 import { getActivities, getNotice, getFakeList } from './mock/api';
