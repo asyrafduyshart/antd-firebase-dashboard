@@ -4,7 +4,7 @@ let firebaseApi;
 const hostname = window && window.location && window.location.hostname;
 
 if (hostname === 'kreasinyata-dashboard-demo.netlify.com') {
-  firebaseApi = 'https://https://us-central1-zenbu-resto-user.cloudfunctions.net';
+  firebaseApi = 'https://us-central1-zenbu-resto-user.cloudfunctions.net';
 } else if (hostname === 'staging.realsite.com') {
   firebaseApi = 'https://staging.api.realsite.com';
 } else if (/^qa/.test(hostname)) {
