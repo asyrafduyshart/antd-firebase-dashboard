@@ -105,17 +105,17 @@ export default class LoginPage extends Component {
           onTabChange={this.onTabChange}
           onSubmit={this.handleSubmit}
         >
-          <Tab key="account" tab="By username">
+          <Tab key="account" tab="Email">
             {
               login.status === 'error' &&
               login.type === 'account' &&
               !login.submitting &&
               this.renderMessage('Wrong account/password')
             }
-            <UserName name="userName" placeholder="Username" />
+            <UserName name="email" placeholder="Email" />
             <Password name="password" placeholder="Password" />
           </Tab>
-          <Tab key="mobile" tab="By phone">
+          <Tab key="mobile" tab="Phone">
 
             {
               login.status === 'error' &&
@@ -137,7 +137,7 @@ export default class LoginPage extends Component {
             <Checkbox
               checked={this.state.autoLogin}
               onChange={this.changeAutoLogin}
-            >Auto-Login
+            >Remember
             </Checkbox>
             <a style={{ float: 'right' }} href="">Forget Password</a>
           </div>

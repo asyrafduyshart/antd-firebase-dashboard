@@ -92,7 +92,7 @@ class BasicLayout extends React.PureComponent {
   getPageTitle() {
     const { routerData, location } = this.props;
     const { pathname } = location;
-    let title = 'Resto Dashboard';
+    let title = 'Tekno Dashboard';
     if (routerData[pathname] && routerData[pathname].name) {
       title = `${routerData[pathname].name} - Tekno Kreasi Nyata`;
     }

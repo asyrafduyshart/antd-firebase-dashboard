@@ -358,7 +358,7 @@ export default class Analysis extends Component {
                   </Col>
                   <Col xl={8} lg={12} md={12} sm={24} xs={24}>
                     <div className={styles.salesRank}>
-                      <h4 className={styles.rankingTitle}>门店访问量排名</h4>
+                      <h4 className={styles.rankingTitle}>Store visits ranked</h4>
                       <ul className={styles.rankingList}>
                         {rankingListData.map((item, i) => (
                           <li key={item.title}>
@@ -390,7 +390,7 @@ export default class Analysis extends Component {
                   <NumberInfo
                     subTitle={
                       <span>
-                        搜索用户数
+                        Number of search users
                         <Tooltip title="Indicator copy">
                           <Icon style={{ marginLeft: 8 }} type="info-circle-o" />
                         </Tooltip>

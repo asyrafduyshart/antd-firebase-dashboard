@@ -24,12 +24,12 @@ function checkStatus(response) {
   if (response.status >= 200 && response.status < 300) {
     return response;
   }
-  const errortext = codeMessage[response.status] || response.statusText;
+  const errorText = codeMessage[response.status] || response.statusText;
   notification.error({
     message: `Request error ${response.status}: ${response.url}`,
-    description: errortext,
+    description: errorText,
   });
-  const error = new Error(errortext);
+  const error = new Error(errorText);
   error.name = response.status;
   error.response = response;
   throw error;
@@ -65,7 +65,6 @@ export default function request(url, options) {
     }
   }
 
-  console.log(newOptions);
   return fetch(url, newOptions)
     .then(checkStatus)
     .then((response) => {
@@ -75,7 +74,6 @@ export default function request(url, options) {
       return response.json();
     })
     .catch((e) => {
-      console.error(e);
       const { dispatch } = store;
       const status = e.name;
       if (status === 401) {

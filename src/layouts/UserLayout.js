@@ -43,10 +43,10 @@ class UserLayout extends React.PureComponent {
               <div className={styles.header}>
                 <Link to="/">
                   <img alt="logo" className={styles.logo} src={logo} />
-                  <span className={styles.title}>Tekno Resto</span>
+                  <span className={styles.title}>Tekno Dashboard</span>
                 </Link>
               </div>
-              <div className={styles.desc}>PT. Tekno Kreasi Nyata</div>
+              <div className={styles.desc}>By Tekno Kreasi Nyata</div>
             </div>
             <Switch>
               {getRoutes(match.path, routerData).map(item =>
