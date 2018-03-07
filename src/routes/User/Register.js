@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import { routerRedux, Link } from 'dva/router';
-import { Form, Input, Button, Select, Row, Col, Popover, Progress } from 'antd';
+import { Form, Input, Button, Popover, Progress, Alert } from 'antd';
 import styles from './Register.less';
 
 const FormItem = Form.Item;
-const { Option } = Select;
-const InputGroup = Input.Group;
 
 const passwordStatusMap = {
   ok: <div className={styles.success}>Strength：strong</div>,
@@ -27,15 +25,14 @@ const passwordProgressMap = {
 @Form.create()
 export default class Register extends Component {
   state = {
-    count: 0,
     confirmDirty: false,
     visible: false,
     help: '',
-    prefix: '62',
+    type: 'email',
   };
 
   componentWillReceiveProps(nextProps) {
-    const account = this.props.form.getFieldValue('mail');
+    const account = this.props.form.getFieldValue('email');
     if (nextProps.register.status === 'ok') {
       this.props.dispatch(routerRedux.push({
         pathname: '/user/register-result',
@@ -45,22 +42,6 @@ export default class Register extends Component {
       }));
     }
   }
-
-  componentWillUnmount() {
-    clearInterval(this.interval);
-  }
-
-  onGetCaptcha = () => {
-    let count = 59;
-    this.setState({ count });
-    this.interval = setInterval(() => {
-      count -= 1;
-      this.setState({ count });
-      if (count === 0) {
-        clearInterval(this.interval);
-      }
-    }, 1000);
-  };
 
   getPasswordStatus = () => {
     const { form } = this.props;
@@ -76,13 +57,14 @@ export default class Register extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
+    const { type } = this.state;
     this.props.form.validateFields({ force: true }, (err, values) => {
       if (!err) {
         this.props.dispatch({
           type: 'register/submit',
           payload: {
             ...values,
-            prefix: this.state.prefix,
+            type,
           },
         });
       }
@@ -131,12 +113,6 @@ export default class Register extends Component {
     }
   };
 
-  changePrefix = (value) => {
-    this.setState({
-      prefix: value,
-    });
-  };
-
   renderPasswordProgress = () => {
     const { form } = this.props;
     const value = form.getFieldValue('password');
@@ -154,16 +130,33 @@ export default class Register extends Component {
     ) : null;
   };
 
+  renderMessage = (content) => {
+    return (
+      <Alert style={{ marginBottom: 24 }} message={content} type="error" showIcon closable />
+    );
+  }
+
   render() {
-    const { form, submitting } = this.props;
+    const { form, submitting, register } = this.props;
     const { getFieldDecorator } = form;
-    const { count, prefix } = this.state;
+    const notEmpty = Boolean(this.props.form.getFieldValue('email'));
     return (
       <div className={styles.main}>
         <h3>Register Account</h3>
+        {register.type === 'email' && register.status === 'error' && !submitting && notEmpty && this.renderMessage(register.message)}
         <Form onSubmit={this.handleSubmit}>
           <FormItem>
-            {getFieldDecorator('mail', {
+            {getFieldDecorator('username', {
+              rules: [
+                {
+                  required: true,
+                  message: 'Please insert you name',
+                },
+          ],
+          })(<Input size="large" placeholder="Username" />)}
+          </FormItem>
+          <FormItem >
+            {getFieldDecorator('email', {
               rules: [
                 {
                   required: true,
@@ -218,60 +211,6 @@ export default class Register extends Component {
                 },
               ],
             })(<Input size="large" type="password" placeholder="Confirm Password" />)}
-          </FormItem>
-          <FormItem>
-            <InputGroup compact>
-              <Select
-                size="large"
-                value={prefix}
-                onChange={this.changePrefix}
-                style={{ width: '20%' }}
-              >
-                <Option value="62">+62</Option>
-              </Select>
-              {getFieldDecorator('mobile', {
-                rules: [
-                  {
-                    required: true,
-                    message: 'Plaese enter your phone number！',
-                  },
-                  {
-                    pattern: /^8\d{10}$/,
-                    message: 'Malformed phone number！',
-                  },
-                ],
-              })(
-                <Input
-                  size="large"
-                  style={{ width: '80%' }}
-                  placeholder="phone number"
-                />
-              )}
-            </InputGroup>
-          </FormItem>
-          <FormItem>
-            <Row gutter={8}>
-              <Col span={16}>
-                {getFieldDecorator('captcha', {
-                  rules: [
-                    {
-                      required: true,
-                      message: 'Please enter verification code！',
-                    },
-                  ],
-                })(<Input size="large" placeholder="Verification code" />)}
-              </Col>
-              <Col span={8}>
-                <Button
-                  size="large"
-                  disabled={count}
-                  className={styles.getCaptcha}
-                  onClick={this.onGetCaptcha}
-                >
-                  {count ? `${count} s` : 'Send SMS'}
-                </Button>
-              </Col>
-            </Row>
           </FormItem>
           <FormItem>
             <Button

@@ -3,50 +3,50 @@ import firebaseApp from '../utils/firebase';
 import { getToken } from './api';
 
 
+// login
 export async function fetchLoginWithEmail({ email, password }) {
-  return firebaseApp.auth().signInWithEmailAndPassword(email, password);
+  const { emailVerified } = await firebaseApp.auth().signInWithEmailAndPassword(email, password);
+  const idToken = await firebaseApp.auth().currentUser.getIdToken();
+  const { token } = await getToken({ token: idToken });
+  const webtoken = token;
+
+  return {
+    token: webtoken,
+    emailVerified,
+  };
 }
 
 export async function fetchSendVerification({ mobile, appVerifier }) {
   return firebaseApp.auth().signInWithPhoneNumber(mobile, appVerifier);
 }
 
-export async function fetchWithCredential({ verificationId, code }) {
+export async function fetchWithCredential({ verificationId, code, username }) {
   const credential = firebase.auth.PhoneAuthProvider.credential(verificationId, code);
 
-  let idToken;
-  let webtoken;
-
-  try {
-    await firebaseApp.auth().signInWithCredential(credential);
-  } catch (error) {
-    return {
-      status: 'error',
-      message: error.message,
-    };
-  }
-
-  try {
-    idToken = await firebaseApp.auth().currentUser.getIdToken();
-  } catch (error) {
-    return {
-      status: 'error',
-      message: error.message,
-    };
-  }
-
-  try {
-    const { token } = await getToken({ token: idToken });
-    webtoken = token;
-  } catch (error) {
-    return {
-      status: 'error',
-      message: error.message,
-    };
-  }
+  await firebaseApp.auth().signInWithCredential(credential);
+  const idToken = await firebaseApp.auth().currentUser.getIdToken();
+  const user = firebase.auth().currentUser;
+  await user.updateProfile({
+    displayName: username,
+  });
+  const { token } = await getToken({ token: idToken });
+  const webtoken = token;
 
   return {
     status: 'ok',
     token: webtoken,
   };
 }
+
+// Register
+export async function fetchRegisterWithEmail({ email, password, username }) {
+  const response = await firebaseApp.auth().createUserWithEmailAndPassword(email, password);
+  const user = firebase.auth().currentUser;
+  await user.updateProfile({
+    displayName: username,
+  });
+
+  await user.sendEmailVerification();
+  return response;
+}
+

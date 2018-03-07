@@ -16,19 +16,30 @@ export default {
       const { type } = payload;
       if (type === 'account') {
         try {
-          const result = yield call(fetchLoginWithEmail, payload);
-          yield put({
-            type: 'changeLoginStatus',
-            payload: {
-              status: 'ok',
-              type,
-              currentAuthority: 'admin',
-            },
-          });
-          // Login successfully
-          if (result.status === 'ok') {
+          const { emailVerified, token } = yield call(fetchLoginWithEmail, payload);
+          if (emailVerified) {
+            yield put({
+              type: 'changeLoginStatus',
+              payload: {
+                status: 'ok',
+                type,
+                currentAuthority: 'admin',
+                token,
+              },
+            });
+            // Login successfully
             reloadAuthorized();
             yield put(routerRedux.push('/'));
+          } else {
+            yield put({
+              type: 'changeLoginStatus',
+              payload: {
+                status: 'error',
+                type,
+                currentAuthority: 'guest',
+                message: 'email not verified',
+              },
+            });
           }
         } catch (error) {
           yield put({
@@ -36,7 +47,7 @@ export default {
             payload: {
               status: 'error',
               type,
-              currentAuthority: 'admin',
+              currentAuthority: 'guest',
               message: error.message,
             },
           });
@@ -54,11 +65,9 @@ export default {
               token,
             },
           });
+          reloadAuthorized();
+          yield put(routerRedux.push('/'));
 
-          if (status === 'ok') {
-            reloadAuthorized();
-            yield put(routerRedux.push('/'));
-          }
         } catch (error) {
           yield put({
             type: 'changeLoginStatus',
@@ -120,19 +129,14 @@ export default {
 
   reducers: {
     changeLoginStatus(state, { payload }) {
-      const { status, type, message, verificationId, token, currentAuthority } = payload;
+      const { token, currentAuthority } = payload;
       setAuthority(currentAuthority);
-      console.log(payload);
       if (token) {
-        console.log(`TOKEN FROM FIREBASE ${token}`);
         setWebToken(token);
       }
       return {
         ...state,
-        status,
-        type,
-        message,
-        verificationId,
+        ...payload,
       };
     },
   },

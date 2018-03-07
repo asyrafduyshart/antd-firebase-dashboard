@@ -35,6 +35,7 @@ export default class LoginPage extends Component {
     const { type } = this.state;
     const { login } = this.props;
     const { verificationId } = login;
+
     if (!err) {
       this.props.dispatch({
         type: 'login/login',
@@ -110,7 +111,7 @@ export default class LoginPage extends Component {
               login.status === 'error' &&
               login.type === 'account' &&
               !login.submitting &&
-              this.renderMessage('Wrong account/password')
+              this.renderMessage(login.message)
             }
             <UserName name="email" placeholder="Email" />
             <Password name="password" placeholder="Password" />

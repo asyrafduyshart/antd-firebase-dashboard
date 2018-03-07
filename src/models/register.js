@@ -1,7 +1,8 @@
 import { routerRedux } from 'dva/router';
 import { setAuthority, setWebToken } from '../utils/authority';
 import { reloadAuthorized } from '../utils/Authorized';
-import { fetchLoginWithEmail, fetchSendVerification, fetchWithCredential } from '../services/firebase';
+import { fetchRegisterWithEmail, fetchSendVerification, fetchWithCredential } from '../services/firebase';
+// import user from './user';
 
 
 export default {
@@ -14,7 +15,6 @@ export default {
   effects: {
     *submit({ payload }, { call, put }) {
       const { type, username } = payload;
-      yield console.log(payload);
       if (type === 'mobile') {
         try {
           const response = yield call(fetchWithCredential, payload);
@@ -29,15 +29,33 @@ export default {
             },
           });
 
-          if (status === 'ok') {
-            reloadAuthorized();
-            yield put(routerRedux.push({
-              pathname: '/user/register-result',
-              state: {
-                username,
-              },
-            }));
-          }
+          reloadAuthorized();
+          yield put(routerRedux.push({
+            pathname: '/',
+          }));
+        } catch (error) {
+          yield put({
+            type: 'registerHandle',
+            payload: {
+              status: 'error',
+              type,
+              currentAuthority: 'guest',
+              message: error.message,
+            },
+          });
+        }
+      } else if (type === 'email') {
+        try {
+          const { email, emailVerified } = yield call(fetchRegisterWithEmail, payload);
+          reloadAuthorized();
+          yield put(routerRedux.push({
+            pathname: '/user/register-result',
+            state: {
+              email,
+              username,
+              verified: emailVerified,
+            },
+          }));
         } catch (error) {
           yield put({
             type: 'registerHandle',
@@ -79,20 +97,15 @@ export default {
 
   reducers: {
     registerHandle(state, { payload }) {
-      const { status, type, message, verificationId, token, currentAuthority } = payload;
+      const { token, currentAuthority } = payload;
       setAuthority(currentAuthority);
-      console.log(payload);
       if (token) {
-        console.log(`TOKEN FROM FIREBASE ${token}`);
         setWebToken(token);
       }
       reloadAuthorized();
       return {
         ...state,
-        status,
-        type,
-        message,
-        verificationId,
+        ...payload,
       };
     },
   },
