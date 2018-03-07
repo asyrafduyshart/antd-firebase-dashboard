@@ -1,6 +1,6 @@
 import { stringify } from 'qs';
 import request from '../utils/request';
-import { FIREBASE_HOST_MOCK } from '../config/api-config';
+import { FIREBASE_HOST_MOCK, FIREBASE_HOST } from '../config/api-config';
 
 
 export async function queryProjectNotice() {
@@ -81,7 +81,7 @@ export async function queryNotices() {
 }
 
 export async function getToken(params) {
-  return request('https://us-central1-zenbu-resto-user.cloudfunctions.net/api/auth', {
+  return request(`${FIREBASE_HOST}/api/auth`, {
     method: 'POST',
     body: stringify(params),
     headers: {
