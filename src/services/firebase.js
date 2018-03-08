@@ -50,3 +50,11 @@ export async function fetchRegisterWithEmail({ email, password, username }) {
   return response;
 }
 
+export async function getCurrentFirebaseUser(callback) {
+  firebaseApp.auth().onAuthStateChanged(callback);
+}
+
+export async function logoutFirebase() {
+  return firebaseApp.auth().signOut();
+}
+

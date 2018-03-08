@@ -67,7 +67,7 @@ function generator({ defaultProps, defaultRules, type }) {
         if (type === 'Mobile') {
           const inputProps = omit(otherProps, ['onSendSMS']);
           return (
-            <FormItem>
+            <FormItem >
               <Row gutter={8}>
                 <Col span={16}>
                   {getFieldDecorator(name, options)(

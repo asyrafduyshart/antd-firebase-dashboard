@@ -1,7 +1,7 @@
 import { routerRedux } from 'dva/router';
 import { setAuthority, setWebToken } from '../utils/authority';
 import { reloadAuthorized } from '../utils/Authorized';
-import { fetchLoginWithEmail, fetchSendVerification, fetchWithCredential } from '../services/firebase';
+import { fetchLoginWithEmail, fetchSendVerification, fetchWithCredential, logoutFirebase } from '../services/firebase';
 
 export default {
   namespace: 'login',
@@ -67,7 +67,6 @@ export default {
           });
           reloadAuthorized();
           yield put(routerRedux.push('/'));
-
         } catch (error) {
           yield put({
             type: 'changeLoginStatus',
@@ -105,7 +104,7 @@ export default {
         });
       }
     },
-    *logout(_, { put, select }) {
+    *logout(_, { put, call, select }) {
       try {
         // get location pathname
         const urlParams = new URL(window.location.href);
@@ -113,6 +112,7 @@ export default {
         // add the parameters in the url
         urlParams.searchParams.set('redirect', pathname);
         window.history.replaceState(null, 'login', urlParams.href);
+        yield call(logoutFirebase);
       } finally {
         yield put({
           type: 'changeLoginStatus',

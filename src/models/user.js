@@ -1,4 +1,6 @@
-import { query as queryUsers, queryCurrent } from '../services/user';
+import { query as queryUsers } from '../services/user';
+import { getCurrentFirebaseUser } from '../services/firebase';
+import store from '../index';
 
 export default {
   namespace: 'user',
@@ -16,12 +18,27 @@ export default {
         payload: response,
       });
     },
-    *fetchCurrent(_, { call, put }) {
-      const response = yield call(queryCurrent);
-      yield put({
-        type: 'saveCurrentUser',
-        payload: response,
-      });
+    *fetchCurrent(_, { call }) {
+      const callback = (user) => {
+        const { dispatch } = store;
+        if (!user) {
+          dispatch({
+            type: 'login/logout',
+          });
+        } else {
+          dispatch({
+            type: 'user/saveCurrentUser',
+            payload: {
+              avatar: 'https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png',
+              name: user.displayName,
+              notifyCount: 12,
+              userid: user.uid,
+            },
+          });
+        }
+      };
+
+      yield call(getCurrentFirebaseUser, callback);
     },
   },
 
