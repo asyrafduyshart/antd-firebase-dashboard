@@ -63,13 +63,7 @@ class StandardTable extends PureComponent {
 
   render() {
     const { selectedRowKeys, needTotalList } = this.state;
-    const { data: { list, pagination }, loading, columns } = this.props;
-
-    const paginationProps = {
-      showSizeChanger: true,
-      showQuickJumper: true,
-      ...pagination,
-    };
+    const { data, loading, columns, footer } = this.props;
 
     const rowSelection = {
       selectedRowKeys,
@@ -85,10 +79,10 @@ class StandardTable extends PureComponent {
           <Alert
             message={(
               <Fragment>
-                已选择 <a style={{ fontWeight: 600 }}>{selectedRowKeys.length}</a> 项&nbsp;&nbsp;
+                Chosen <a style={{ fontWeight: 600 }}>{selectedRowKeys.length}</a> Item&nbsp;&nbsp;
                 {
                   needTotalList.map(item => (
-                    <span style={{ marginLeft: 8 }} key={item.dataIndex}>{item.title}总计&nbsp;
+                    <span style={{ marginLeft: 8 }} key={item.dataIndex}>{item.title}Total&nbsp;
                       <span style={{ fontWeight: 600 }}>
                         {item.render ? item.render(item.total) : item.total}
                       </span>
@@ -96,7 +90,7 @@ class StandardTable extends PureComponent {
                     )
                   )
                 }
-                <a onClick={this.cleanSelectedKeys} style={{ marginLeft: 24 }}>清空</a>
+                <a onClick={this.cleanSelectedKeys} style={{ marginLeft: 24 }}>Empty</a>
               </Fragment>
             )}
             type="info"
@@ -107,10 +101,11 @@ class StandardTable extends PureComponent {
           loading={loading}
           rowKey={record => record.key}
           rowSelection={rowSelection}
-          dataSource={list}
+          dataSource={data}
           columns={columns}
-          pagination={paginationProps}
+          pagination={false}
           onChange={this.handleTableChange}
+          footer={() => footer}
         />
       </div>
     );

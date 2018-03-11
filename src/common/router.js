@@ -85,6 +85,28 @@ export const getRouterData = (app) => {
       // name: '工作台',
       // authority: 'admin',
     },
+    '/orders/request': {
+      component: dynamicWrapper(app, ['order'], () => import('../routes/Order/Request')),
+    },
+    '/orders/request/info': {
+      name: 'Request Order',
+      component: dynamicWrapper(app, ['order'], () => import('../routes/Order/Request/Step1')),
+    },
+    '/orders/request/confirm': {
+      name: 'Verify Data',
+      component: dynamicWrapper(app, ['order'], () => import('../routes/Order/Request/Step2')),
+    },
+    '/orders/request/result': {
+      name: 'Complete',
+      component: dynamicWrapper(app, ['order'], () => import('../routes/Order/Request/Step3')),
+    },
+    '/orders/order': {
+      component: dynamicWrapper(app, ['orderMyList'], () => import('../routes/Order/List/ListOrder')),
+    },
+    '/orders/:id': {
+      name: 'Detail',
+      component: dynamicWrapper(app, ['orderDetail'], () => import('../routes/Order/Detail')),
+    },
     '/exception/403': {
       component: dynamicWrapper(app, [], () => import('../routes/Exception/403')),
     },

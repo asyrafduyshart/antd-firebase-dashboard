@@ -2,6 +2,7 @@ import { stringify } from 'qs';
 import request from '../utils/request';
 import { FIREBASE_HOST_MOCK, FIREBASE_HOST } from '../config/api-config';
 
+const LOCALHOST3000 = 'http://localhost:8000';
 
 export async function queryProjectNotice() {
   return request(`${FIREBASE_HOST_MOCK}/api/project/notice`);
@@ -12,11 +13,11 @@ export async function queryActivities() {
 }
 
 export async function queryRule(params) {
-  return request(`${FIREBASE_HOST_MOCK}/api/rule?${stringify(params)}`);
+  return request(`${LOCALHOST3000}/api/rule?${stringify(params)}`);
 }
 
 export async function removeRule(params) {
-  return request(`${FIREBASE_HOST_MOCK}/api/rule`, {
+  return request(`${LOCALHOST3000}/api/rule`, {
     method: 'POST',
     body: {
       ...params,
@@ -26,7 +27,7 @@ export async function removeRule(params) {
 }
 
 export async function addRule(params) {
-  return request(`${FIREBASE_HOST_MOCK}/api/rule`, {
+  return request(`${LOCALHOST3000}/api/rule`, {
     method: 'POST',
     body: {
       ...params,

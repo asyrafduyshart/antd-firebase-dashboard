@@ -16,6 +16,17 @@ const menuData = [{
     // hideInMenu: true,
   }],
 }, {
+  name: 'Order',
+  icon: 'form',
+  path: 'orders',
+  children: [{
+    name: 'Request Order',
+    path: 'request',
+  }, {
+    name: 'My Order',
+    path: 'order',
+  }],
+}, {
   name: 'Error Page',
   icon: 'warning',
   path: 'exception',
