@@ -16,14 +16,14 @@ export default {
       const { type } = payload;
       if (type === 'account') {
         try {
-          const { emailVerified, token } = yield call(fetchLoginWithEmail, payload);
+          const { emailVerified, token, authority } = yield call(fetchLoginWithEmail, payload);
           if (emailVerified) {
             yield put({
               type: 'changeLoginStatus',
               payload: {
                 status: 'ok',
                 type,
-                currentAuthority: 'admin',
+                currentAuthority: authority,
                 token,
               },
             });

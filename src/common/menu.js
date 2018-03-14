@@ -13,6 +13,7 @@ const menuData = [{
   }, {
     name: 'Work Place',
     path: 'workplace',
+    authority: 'admin',
     // hideInMenu: true,
   }],
 }, {
@@ -20,6 +21,9 @@ const menuData = [{
   icon: 'form',
   path: 'orders',
   children: [{
+    name: 'All Order',
+    path: 'all',
+  }, {
     name: 'Request Order',
     path: 'request',
   }, {

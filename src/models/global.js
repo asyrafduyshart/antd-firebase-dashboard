@@ -1,4 +1,5 @@
 import { queryNotices } from '../services/api';
+import { getUserData } from '../services/firebase';
 
 export default {
   namespace: 'global',
@@ -11,6 +12,8 @@ export default {
   effects: {
     *fetchNotices(_, { call, put }) {
       const data = yield call(queryNotices);
+      const response = yield call(getUserData);
+      console.log('response: ', response);
       yield put({
         type: 'saveNotices',
         payload: data,

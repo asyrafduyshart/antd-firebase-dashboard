@@ -15,6 +15,10 @@ const getValue = obj => Object.keys(obj).map(key => obj[key]).join(',');
 // const status = ['Shutdown', 'Running', 'Online', 'Error'];
 const columns = [
   {
+    title: 'Requester',
+    dataIndex: 'name',
+  },
+  {
     title: 'Client',
     dataIndex: 'client',
   },
@@ -80,9 +84,9 @@ const CreateForm = Form.create()((props) => {
   );
 });
 
-@connect(({ orderMyList, loading }) => ({
-  data: orderMyList,
-  loading: loading.models.orderMyList,
+@connect(({ orders, loading }) => ({
+  data: orders,
+  loading: loading.models.orders,
 }))
 @Form.create()
 export default class ListOrder extends PureComponent {
@@ -96,14 +100,15 @@ export default class ListOrder extends PureComponent {
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: 'orderMyList/fetch',
+      type: 'orders/fetch',
     });
   }
 
   fetchMore = () => {
     const { data: { lastVisible } } = this.props;
+    console.log('lastVisible: ', lastVisible);
     this.props.dispatch({
-      type: 'orderMyList/appendFetch',
+      type: 'orders/appendFetch',
       payload: lastVisible,
     });
   }
@@ -129,7 +134,7 @@ export default class ListOrder extends PureComponent {
     }
 
     dispatch({
-      type: 'orderMyList/fetch',
+      type: 'orders/fetch',
       payload: params,
     });
   }
@@ -141,7 +146,7 @@ export default class ListOrder extends PureComponent {
       formValues: {},
     });
     dispatch({
-      type: 'orderMyList/fetch',
+      type: 'orders/fetch',
       payload: {},
     });
   }
@@ -161,7 +166,7 @@ export default class ListOrder extends PureComponent {
     switch (e.key) {
       case 'remove':
         dispatch({
-          type: 'orderMyList/remove',
+          type: 'orders/remove',
           payload: {
             no: selectedRows.map(row => row.no).join(','),
           },
@@ -201,7 +206,7 @@ export default class ListOrder extends PureComponent {
       });
 
       dispatch({
-        type: 'orderMyList/fetch',
+        type: 'orders/fetch',
         payload: values,
       });
     });
@@ -215,7 +220,7 @@ export default class ListOrder extends PureComponent {
 
   handleAdd = (fields) => {
     this.props.dispatch({
-      type: 'orderMyList/add',
+      type: 'orders/add',
       payload: {
         description: fields.desc,
       },

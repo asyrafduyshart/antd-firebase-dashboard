@@ -2,7 +2,7 @@ import { routerRedux } from 'dva/router';
 import qs from 'qs';
 import { message } from 'antd';
 // import { fakeSubmitForm } from '../services/api';
-import { addOrderData } from '../services/firebase';
+import { addOrderData, addHistoryOrderData } from '../services/firebase';
 
 
 export default {
@@ -30,6 +30,7 @@ export default {
     *submitStepForm({ payload }, { call, put }) {
       try {
         const { id } = yield call(addOrderData, payload);
+        yield call(addHistoryOrderData, id, payload);
         yield put({
           type: 'saveStepFormData',
           payload: {

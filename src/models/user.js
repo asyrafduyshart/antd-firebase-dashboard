@@ -1,5 +1,8 @@
 import { query as queryUsers } from '../services/user';
 import { getCurrentFirebaseUser } from '../services/firebase';
+import { setAuthority } from '../utils/authority';
+import { reloadAuthorized } from '../utils/Authorized';
+
 import store from '../index';
 
 export default {
@@ -18,27 +21,27 @@ export default {
         payload: response,
       });
     },
-    *fetchCurrent(_, { call }) {
-      const callback = (user) => {
-        const { dispatch } = store;
-        if (!user) {
-          dispatch({
-            type: 'login/logout',
-          });
-        } else {
-          dispatch({
-            type: 'user/saveCurrentUser',
-            payload: {
-              avatar: 'https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png',
-              name: user.displayName,
-              notifyCount: 12,
-              userid: user.uid,
-            },
-          });
-        }
-      };
+    *fetchCurrent(_, { call, put }) {
+      const user = yield call(getCurrentFirebaseUser);
+      yield setAuthority(user.authority);
+      reloadAuthorized();
 
-      yield call(getCurrentFirebaseUser, callback);
+      try {
+        yield put({
+          type: 'saveCurrentUser',
+          payload: {
+            avatar: 'https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png',
+            name: user.displayName,
+            notifyCount: 12,
+            userid: user.uid,
+          },
+        });
+      } catch (error) {
+        const { dispatch } = store;
+        dispatch({
+          type: 'login/logout',
+        });
+      }
     },
   },
 
@@ -64,5 +67,6 @@ export default {
         },
       };
     },
+
   },
 };

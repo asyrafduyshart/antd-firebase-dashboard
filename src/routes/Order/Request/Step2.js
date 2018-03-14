@@ -3,6 +3,7 @@ import { connect } from 'dva';
 import { Form, Button, Alert, Divider, Upload, Icon, message } from 'antd';
 import { routerRedux } from 'dva/router';
 import styles from './style.less';
+import enumStatus from '../../../utils/orderStatusEnum';
 
 const { Dragger } = Upload;
 
@@ -46,17 +47,18 @@ class Step2 extends React.PureComponent {
       e.preventDefault();
       validateFields((err) => {
         const { client, priceTotal, priceRequest, date } = data;
-        const dateStart = date[0].format('LL');
-        const dateEnd = date[0].format('LL');
+        const dateStart = date[0].format();
+        const dateEnd = date[0].format();
         if (!err) {
           dispatch({
             type: 'order/submitStepForm',
             payload: {
               client,
-              priceTotal,
-              priceRequest,
+              priceTotal: Number(priceTotal),
+              priceRequest: Number(priceRequest),
               dateStart,
               dateEnd,
+              status: enumStatus.SUBMISSION_CREATED,
             },
           });
         }
