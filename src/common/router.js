@@ -81,12 +81,13 @@ export const getRouterData = (app) => {
     },
     '/dashboard/workplace': {
       component: dynamicWrapper(app, ['project', 'activities', 'chart'], () => import('../routes/Dashboard/Workplace')),
-      // hideInBreadcrumb: true,
-      // name: '工作台',
       authority: 'admin',
     },
     '/orders/all': {
       component: dynamicWrapper(app, ['orders'], () => import('../routes/Order/List/ListAllOrder')),
+    },
+    '/orders/order': {
+      component: dynamicWrapper(app, ['orderMyList'], () => import('../routes/Order/List/ListOrder')),
     },
     '/orders/request': {
       component: dynamicWrapper(app, ['order'], () => import('../routes/Order/Request')),
@@ -102,9 +103,6 @@ export const getRouterData = (app) => {
     '/orders/request/result': {
       name: 'Complete',
       component: dynamicWrapper(app, ['order'], () => import('../routes/Order/Request/Step3')),
-    },
-    '/orders/order': {
-      component: dynamicWrapper(app, ['orderMyList'], () => import('../routes/Order/List/ListOrder')),
     },
     '/orders/:id': {
       name: 'Detail',

@@ -2,8 +2,6 @@ import { routerRedux } from 'dva/router';
 import { setAuthority, setWebToken } from '../utils/authority';
 import { reloadAuthorized } from '../utils/Authorized';
 import { fetchRegisterWithEmail, fetchSendVerification, fetchWithCredential } from '../services/firebase';
-// import user from './user';
-
 
 export default {
   namespace: 'register',
@@ -24,7 +22,7 @@ export default {
             payload: {
               status,
               type,
-              currentAuthority: 'admin',
+              currentAuthority: 'user',
               token,
             },
           });

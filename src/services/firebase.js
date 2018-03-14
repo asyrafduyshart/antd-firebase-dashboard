@@ -147,6 +147,33 @@ export async function getOrderHistory(id) {
   );
 }
 
+export async function getAllOrders() {
+  const ordersRef = firestore.collection('orders');
+  const querySnapshot = await ordersRef.limit(10).get();
+
+  // Get the last visible document
+  const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
+  const orders = [];
+  querySnapshot.forEach((element) => {
+    orders.push({ id: element.id, key: element.id, ...element.data() });
+  });
+  return { orders, lastVisible };
+}
+
+export async function getNextAllOrders(visible) {
+  const ordersRef = firestore.collection('orders');
+  const querySnapshot = await ordersRef.startAfter(visible).limit(10).get();
+
+  // Get the last visible document
+  const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
+
+  const orders = [];
+  querySnapshot.forEach((element) => {
+    orders.push({ id: element.id, key: element.id, ...element.data() });
+  });
+  return { orders, lastVisible };
+}
+
 export async function getMyOrders() {
   const ordersRef = firestore.collection('orders');
   const { uid } = await getCurrentUser();

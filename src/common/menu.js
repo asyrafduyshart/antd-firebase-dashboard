@@ -4,6 +4,7 @@ const menuData = [{
   name: 'Dashboard',
   icon: 'dashboard',
   path: 'dashboard',
+  authority: 'admin',
   children: [{
     name: 'Analysis',
     path: 'analysis',
@@ -21,14 +22,22 @@ const menuData = [{
   icon: 'form',
   path: 'orders',
   children: [{
-    name: 'All Order',
-    path: 'all',
-  }, {
-    name: 'Request Order',
-    path: 'request',
+    name: 'Order Details',
+    path: ':id',
+    authority: ['admin', 'verifier', 'finance', 'user'],
+    hideInMenu: true,
   }, {
     name: 'My Order',
     path: 'order',
+    authority: ['user', 'admin'],
+  }, {
+    name: 'Request Order',
+    path: 'request',
+    authority: ['user', 'admin'],
+  }, {
+    name: 'All Order',
+    path: 'all',
+    authority: ['verifier', 'finance', 'admin'],
   }],
 }, {
   name: 'Error Page',

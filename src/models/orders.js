@@ -1,4 +1,4 @@
-import { getMyOrders, getNextOrders } from '../services/firebase';
+import { getAllOrders, getNextAllOrders } from '../services/firebase';
 
 export default {
   namespace: 'orders',
@@ -10,14 +10,14 @@ export default {
 
   effects: {
     *fetch(_, { call, put }) {
-      const { orders, lastVisible } = yield call(getMyOrders);
+      const { orders, lastVisible } = yield call(getAllOrders);
       yield put({
         type: 'queryList',
         payload: { orders, lastVisible },
       });
     },
     *appendFetch({ payload }, { call, put }) {
-      const { orders, lastVisible } = yield call(getNextOrders, payload);
+      const { orders, lastVisible } = yield call(getNextAllOrders, payload);
       yield put({
         type: 'appendList',
         payload: { orders, lastVisible },

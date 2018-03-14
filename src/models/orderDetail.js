@@ -1,5 +1,5 @@
 import pathToRegexp from 'path-to-regexp';
-import { getOrderById, updateOrderData, addHistoryOrderData, getOrderHistory } from '../services/firebase';
+import { getOrderById, updateOrderData, addHistoryOrderData, getOrderHistory, getCurrentFirebaseUser } from '../services/firebase';
 
 export default {
   namespace: 'orderDetail',
@@ -59,6 +59,13 @@ export default {
     *unsubscribe(_, { put }) {
       yield put({ type: 'CANCEL_WATCH' });
     },
+    *authority(_, { call, put }) {
+      const { authority } = yield call(getCurrentFirebaseUser);
+      yield put({
+        type: 'authoritySuccess',
+        payload: authority,
+      });
+    },
   },
 
   reducers: {
@@ -72,6 +79,12 @@ export default {
       return {
         ...state,
         history: payload,
+      };
+    },
+    authoritySuccess(state, { payload }) {
+      return {
+        ...state,
+        authority: payload,
       };
     },
   },

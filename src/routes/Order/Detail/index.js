@@ -9,12 +9,14 @@ import styles from './index.less';
 import PageHeaderLayout from './../../../layouts/PageHeaderLayout';
 import UpdateSubmission from './UpdateSubmission';
 import statusEnum from '../../../utils/orderStatusEnum';
+import access from '../../../utils/access';
 
 const { Description } = DescriptionList;
 const status = ['error', 'process', 'finish', 'wait'];
 
 class Detail extends Component {
   state = {
+    authority: 'guest',
     history: [],
     stepDirection: 'vertical',
     priceRequest: 0,
@@ -35,12 +37,24 @@ class Detail extends Component {
   }
 
 
+  componentWillMount() {
+    this.props.dispatch({
+      type: 'orderDetail/authority',
+    });
+  }
+
   componentWillReceiveProps(nextProps) {
-    const { data, history } = nextProps;
+    const { data, history, authority } = nextProps;
 
     if (history) {
       this.setState({
         history,
+      });
+    }
+
+    if (authority) {
+      this.setState({
+        authority,
       });
     }
 
@@ -265,7 +279,7 @@ class Detail extends Component {
           <Icon type="dingding-o" style={{ marginLeft: 8 }} />
         </Fragment>
         <div className={styles.buttonDiv}>
-          {this.state.userButton && <Button className={styles.buttonApprove} onClick={() => this.handleModalVisible(true)} type="primary">Update</Button>}
+          {access.can(this.state.authority).updateOwn('submission', ['update']).granted && this.state.userButton && <Button className={styles.buttonApprove} onClick={() => this.handleModalVisible(true)} type="primary">Update</Button>}
         </div>
       </div>
     );
@@ -276,8 +290,8 @@ class Detail extends Component {
           Document is provided
           <Icon type="dingding-o" style={{ color: '#00A0E9', marginLeft: 8 }} />
           <div className={styles.buttonDiv}>
-            {this.state.documentButton && <Button className={styles.buttonApprove} onClick={this.verifyDocument} type="primary">Approved</Button>}
-            {this.state.documentButton && <Button className={styles.buttonReject} onClick={this.rejectDocument} type="danger">Reject</Button>}
+            {access.can(this.state.authority).updateAny('documentStatus', ['approve']).granted && this.state.documentButton && <Button className={styles.buttonApprove} onClick={this.verifyDocument} type="primary">Approved</Button>}
+            {access.can(this.state.authority).updateAny('documentStatus', ['reject']).granted && this.state.documentButton && <Button className={styles.buttonReject} onClick={this.rejectDocument} type="danger">Reject</Button>}
           </div>
         </Fragment>
       </div>
@@ -289,8 +303,8 @@ class Detail extends Component {
           Document is provided
           <Icon type="dingding-o" style={{ color: '#00A0E9', marginLeft: 8 }} />
           <div className={styles.buttonDiv}>
-            {this.state.financeButton && <Button className={styles.buttonApprove} onClick={this.approveFinance} type="primary">Approved</Button>}
-            {this.state.financeButton && <Button className={styles.buttonReject} onClick={this.rejectFinance} type="danger">Reject</Button>}
+            {access.can(this.state.authority).updateAny('financeStatus', ['approve']).granted && this.state.financeButton && <Button className={styles.buttonApprove} onClick={this.approveFinance} type="primary">Approved</Button>}
+            {access.can(this.state.authority).updateAny('financeStatus', ['reject']).granted && this.state.financeButton && <Button className={styles.buttonReject} onClick={this.rejectFinance} type="danger">Reject</Button>}
           </div>
         </Fragment>
       </div>
@@ -302,7 +316,7 @@ class Detail extends Component {
           Document is provided
           <Icon type="dingding-o" style={{ color: '#00A0E9', marginLeft: 8 }} />
           <div className={styles.buttonDiv}>
-            {this.state.orderButton && <Button className={styles.buttonApprove} onClick={this.updateOrder} type="primary">Approved</Button>}
+            {access.can(this.state.authority).updateOwn('orderStart', ['start']).granted && this.state.orderButton && <Button className={styles.buttonApprove} onClick={this.updateOrder} type="primary">Approved</Button>}
           </div>
         </Fragment>
       </div>
@@ -314,8 +328,8 @@ class Detail extends Component {
           Document is provided
           <Icon type="dingding-o" style={{ color: '#00A0E9', marginLeft: 8 }} />
           <div className={styles.buttonDiv}>
-            {this.state.verifyOrderButton && <Button className={styles.buttonApprove} onClick={this.verifyOrder} type="primary">Approved</Button>}
-            {this.state.verifyOrderButton && <Button className={styles.buttonReject} onClick={this.rejectOrder} type="danger">Reject</Button>}
+            {access.can(this.state.authority).updateAny('orderStatus', ['approve']).granted && this.state.verifyOrderButton && <Button className={styles.buttonApprove} onClick={this.verifyOrder} type="primary">Approved</Button>}
+            {access.can(this.state.authority).updateAny('orderStatus', ['reject']).granted && this.state.verifyOrderButton && <Button className={styles.buttonReject} onClick={this.rejectOrder} type="danger">Reject</Button>}
           </div>
         </Fragment>
       </div>
@@ -327,7 +341,7 @@ class Detail extends Component {
           Document is provided
           <Icon type="dingding-o" style={{ color: '#00A0E9', marginLeft: 8 }} />
           <div className={styles.buttonDiv}>
-            {this.state.finishButton && <Button className={styles.buttonApprove} onClick={this.finishOrder} type="primary">Approved</Button>}
+            {access.can(this.state.authority).updateAny('orderSuccess').granted && this.state.finishButton && <Button className={styles.buttonApprove} onClick={this.finishOrder} type="primary">Approved</Button>}
           </div>
         </Fragment>
       </div>
@@ -428,5 +442,6 @@ class Detail extends Component {
 export default connect(({ orderDetail }) => ({
   data: orderDetail.payload,
   history: orderDetail.history,
+  authority: orderDetail.authority,
 }))(Detail);
 

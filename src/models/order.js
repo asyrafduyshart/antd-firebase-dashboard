@@ -44,7 +44,6 @@ export default {
       }
     },
     *query({ payload }, { put }) {
-      yield console.log('payload: ', payload);
       yield put({
         type: 'orders',
         payload,
