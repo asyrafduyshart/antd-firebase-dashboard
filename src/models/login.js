@@ -1,119 +1,59 @@
+/* eslint-disable compat/compat */
 import { routerRedux } from 'dva/router';
-import { setAuthority, setWebToken } from '../utils/authority';
-import { reloadAuthorized } from '../utils/Authorized';
-import { fetchLoginWithEmail, fetchSendVerification, fetchWithCredential, logoutFirebase } from '../services/firebase';
+import { stringify } from 'qs';
+import { getFakeCaptcha } from '@/services/api';
+import { signInUser, signOutUser } from '@/services/auth';
+import { setAuthority } from '@/utils/authority';
+import { getPageQuery } from '@/utils/utils';
+import { reloadAuthorized } from '@/utils/Authorized';
+
 
 export default {
   namespace: 'login',
 
   state: {
     status: undefined,
-    verificationId: undefined,
   },
 
   effects: {
     *login({ payload }, { call, put }) {
-      const { type } = payload;
-      if (type === 'account') {
-        try {
-          const { emailVerified, token, authority } = yield call(fetchLoginWithEmail, payload);
-          if (emailVerified) {
-            yield put({
-              type: 'changeLoginStatus',
-              payload: {
-                status: 'ok',
-                type,
-                currentAuthority: authority,
-                token,
-              },
-            });
-            // Login successfully
-            reloadAuthorized();
-            yield put(routerRedux.push('/'));
-          } else {
-            yield put({
-              type: 'changeLoginStatus',
-              payload: {
-                status: 'error',
-                type,
-                currentAuthority: 'guest',
-                message: 'email not verified',
-              },
-            });
-          }
-        } catch (error) {
-          yield put({
-            type: 'changeLoginStatus',
-            payload: {
-              status: 'error',
-              type,
-              currentAuthority: 'guest',
-              message: error.message,
-            },
-          });
-        }
-      } else if (type === 'mobile') {
-        try {
-          const response = yield call(fetchWithCredential, payload);
-          const { status, token } = response;
-          yield put({
-            type: 'changeLoginStatus',
-            payload: {
-              status,
-              type,
-              currentAuthority: 'admin',
-              token,
-            },
-          });
-          reloadAuthorized();
-          yield put(routerRedux.push('/'));
-        } catch (error) {
-          yield put({
-            type: 'changeLoginStatus',
-            payload: {
-              status: 'error',
-              type,
-              currentAuthority: 'admin',
-              message: error.message,
-            },
-          });
-        }
-      }
-    },
-    *captcha({ payload }, { call, put }) {
-      try {
-        const response = yield call(fetchSendVerification, payload);
-        const { verificationId } = response;
+      const response = yield call(signInUser, payload);
+      // Login successfully
+      if (response.ok === true) {
         yield put({
           type: 'changeLoginStatus',
           payload: {
-            type: 'captcha',
-            status: 'success',
-            message: response.message,
-            verificationId,
+            status: true,
+            currentAuthority: 'user',
           },
         });
-      } catch (error) {
-        yield put({
-          type: 'changeLoginStatus',
-          payload: {
-            type: 'captcha',
-            status: 'error',
-            message: error.message,
-          },
-        });
-      }
-    },
-    *logout(_, { put, call, select }) {
-      try {
-        // get location pathname
+        reloadAuthorized();
         const urlParams = new URL(window.location.href);
-        const pathname = yield select(state => state.routing.location.pathname);
-        // add the parameters in the url
-        urlParams.searchParams.set('redirect', pathname);
-        window.history.replaceState(null, 'login', urlParams.href);
-        yield call(logoutFirebase);
-      } finally {
+        const params = getPageQuery();
+        let { redirect } = params;
+        if (redirect) {
+          const redirectUrlParams = new URL(redirect);
+          if (redirectUrlParams.origin === urlParams.origin) {
+            redirect = redirect.substr(urlParams.origin.length);
+            if (redirect.match(/^\/.*#/)) {
+              redirect = redirect.substr(redirect.indexOf('#') + 1);
+            }
+          } else {
+            window.location.href = redirect;
+            return;
+          }
+        }
+        yield put(routerRedux.replace(redirect || '/'));
+      }
+    },
+
+    *getCaptcha({ payload }, { call }) {
+      yield call(getFakeCaptcha, payload);
+    },
+
+    *logout(_, { put, call }) {
+      const response = yield call(signOutUser);
+      if (response.ok === true) {
         yield put({
           type: 'changeLoginStatus',
           payload: {
@@ -122,21 +62,25 @@ export default {
           },
         });
         reloadAuthorized();
-        yield put(routerRedux.push('/user/login'));
+        yield put(
+          routerRedux.push({
+            pathname: '/user/login',
+            search: stringify({
+              redirect: window.location.href,
+            }),
+          })
+        );
       }
     },
   },
 
   reducers: {
     changeLoginStatus(state, { payload }) {
-      const { token, currentAuthority } = payload;
-      setAuthority(currentAuthority);
-      if (token) {
-        setWebToken(token);
-      }
+      setAuthority(payload.currentAuthority);
       return {
         ...state,
-        ...payload,
+        status: payload.status,
+        type: payload.type,
       };
     },
   },

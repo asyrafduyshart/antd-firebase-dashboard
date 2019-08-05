@@ -1,23 +1,20 @@
 import { stringify } from 'qs';
-import request from '../utils/request';
-import { FIREBASE_HOST_MOCK, FIREBASE_HOST } from '../config/api-config';
-
-const LOCALHOST3000 = 'http://localhost:8000';
+import request from '@/utils/request';
 
 export async function queryProjectNotice() {
-  return request(`${FIREBASE_HOST_MOCK}/api/project/notice`);
+  return request('/api/project/notice');
 }
 
 export async function queryActivities() {
-  return request(`${FIREBASE_HOST_MOCK}/api/activities`);
+  return request('/api/activities');
 }
 
 export async function queryRule(params) {
-  return request(`${LOCALHOST3000}/api/rule?${stringify(params)}`);
+  return request(`/api/rule?${stringify(params)}`);
 }
 
 export async function removeRule(params) {
-  return request(`${LOCALHOST3000}/api/rule`, {
+  return request('/api/rule', {
     method: 'POST',
     body: {
       ...params,
@@ -27,7 +24,7 @@ export async function removeRule(params) {
 }
 
 export async function addRule(params) {
-  return request(`${LOCALHOST3000}/api/rule`, {
+  return request('/api/rule', {
     method: 'POST',
     body: {
       ...params,
@@ -36,57 +33,94 @@ export async function addRule(params) {
   });
 }
 
+export async function updateRule(params) {
+  return request('/api/rule', {
+    method: 'POST',
+    body: {
+      ...params,
+      method: 'update',
+    },
+  });
+}
+
 export async function fakeSubmitForm(params) {
-  return request(`${FIREBASE_HOST_MOCK}/api/forms`, {
+  return request('/api/forms', {
     method: 'POST',
     body: params,
   });
 }
 
 export async function fakeChartData() {
-  return request(`${FIREBASE_HOST_MOCK}/api/fake_chart_data`);
+  return request('/api/fake_chart_data');
 }
 
 export async function queryTags() {
-  return request(`${FIREBASE_HOST_MOCK}/api/tags`);
+  return request('/api/tags');
 }
 
 export async function queryBasicProfile() {
-  return request(`${FIREBASE_HOST_MOCK}/api/profile/basic`);
+  return request('/api/profile/basic');
 }
 
 export async function queryAdvancedProfile() {
-  return request(`${FIREBASE_HOST_MOCK}/api/profile/advanced`);
+  return request('/api/profile/advanced');
 }
 
 export async function queryFakeList(params) {
-  return request(`${FIREBASE_HOST_MOCK}/api/fake_list?${stringify(params)}`);
+  return request(`/api/fake_list?${stringify(params)}`);
+}
+
+export async function removeFakeList(params) {
+  const { count = 5, ...restParams } = params;
+  return request(`/api/fake_list?count=${count}`, {
+    method: 'POST',
+    body: {
+      ...restParams,
+      method: 'delete',
+    },
+  });
+}
+
+export async function addFakeList(params) {
+  const { count = 5, ...restParams } = params;
+  return request(`/api/fake_list?count=${count}`, {
+    method: 'POST',
+    body: {
+      ...restParams,
+      method: 'post',
+    },
+  });
+}
+
+export async function updateFakeList(params) {
+  const { count = 5, ...restParams } = params;
+  return request(`/api/fake_list?count=${count}`, {
+    method: 'POST',
+    body: {
+      ...restParams,
+      method: 'update',
+    },
+  });
 }
 
 export async function fakeAccountLogin(params) {
-  return request(`${FIREBASE_HOST_MOCK}/api/login/account`, {
+  return request('/api/login/account', {
     method: 'POST',
     body: params,
   });
 }
 
 export async function fakeRegister(params) {
-  return request(`${FIREBASE_HOST_MOCK}/api/register`, {
+  return request('/api/register', {
     method: 'POST',
     body: params,
   });
 }
 
-export async function queryNotices() {
-  return request(`${FIREBASE_HOST_MOCK}/api/notices`);
+export async function queryNotices(params = {}) {
+  return request(`/api/notices?${stringify(params)}`);
 }
 
-export async function getToken(params) {
-  return request(`${FIREBASE_HOST}/api/auth`, {
-    method: 'POST',
-    body: stringify(params),
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
-    },
-  });
+export async function getFakeCaptcha(mobile) {
+  return request(`/api/captcha?mobile=${mobile}`);
 }

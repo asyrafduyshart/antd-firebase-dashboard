@@ -6,7 +6,7 @@ import autoHeight from '../autoHeight';
 import styles from './index.less';
 
 @autoHeight()
-export default class TimelineChart extends React.Component {
+class TimelineChart extends React.Component {
   render() {
     const {
       title,
@@ -17,14 +17,10 @@ export default class TimelineChart extends React.Component {
         y2: 'y2',
       },
       borderWidth = 2,
-      data = [
-        {
-          x: 0,
-          y1: 0,
-          y2: 0,
-        },
-      ],
+      data: sourceData,
     } = this.props;
+
+    const data = Array.isArray(sourceData) ? sourceData : [{ x: 0, y1: 0, y2: 0 }];
 
     data.sort((a, b) => a.x - b.x);
 
@@ -44,11 +40,10 @@ export default class TimelineChart extends React.Component {
     });
 
     const dv = ds.createView();
-    dv
-      .source(data)
+    dv.source(data)
       .transform({
         type: 'filter',
-        callback: (obj) => {
+        callback: obj => {
           const date = obj.x;
           return date <= ds.state.end && date >= ds.state.start;
         },
@@ -71,8 +66,8 @@ export default class TimelineChart extends React.Component {
 
     const timeScale = {
       type: 'time',
-      tickCount: 10,
-      mask: 'HH:MM',
+      tickInterval: 60 * 60 * 1000,
+      mask: 'HH:mm',
       range: [0, 1],
     };
 
@@ -121,3 +116,5 @@ export default class TimelineChart extends React.Component {
     );
   }
 }
+
+export default TimelineChart;

@@ -1,6 +1,6 @@
 import React from 'react';
 import PromiseRender from './PromiseRender';
-import { CURRENT } from './index';
+import { CURRENT } from './renderAuthorize';
 
 function isPromise(obj) {
   return (
@@ -29,6 +29,14 @@ const checkPermissions = (authority, currentAuthority, target, Exception) => {
     if (authority.indexOf(currentAuthority) >= 0) {
       return target;
     }
+    if (Array.isArray(currentAuthority)) {
+      for (let i = 0; i < currentAuthority.length; i += 1) {
+        const element = currentAuthority[i];
+        if (authority.indexOf(element) >= 0) {
+          return target;
+        }
+      }
+    }
     return Exception;
   }
 
@@ -36,6 +44,14 @@ const checkPermissions = (authority, currentAuthority, target, Exception) => {
   if (typeof authority === 'string') {
     if (authority === currentAuthority) {
       return target;
+    }
+    if (Array.isArray(currentAuthority)) {
+      for (let i = 0; i < currentAuthority.length; i += 1) {
+        const element = currentAuthority[i];
+        if (authority === element) {
+          return target;
+        }
+      }
     }
     return Exception;
   }
@@ -49,6 +65,10 @@ const checkPermissions = (authority, currentAuthority, target, Exception) => {
   if (typeof authority === 'function') {
     try {
       const bool = authority(currentAuthority);
+      // 函数执行后返回值是 Promise
+      if (isPromise(bool)) {
+        return <PromiseRender ok={target} error={Exception} promise={bool} />;
+      }
       if (bool) {
         return target;
       }
@@ -62,8 +82,7 @@ const checkPermissions = (authority, currentAuthority, target, Exception) => {
 
 export { checkPermissions };
 
-const check = (authority, target, Exception) => {
-  return checkPermissions(authority, CURRENT, target, Exception);
-};
+const check = (authority, target, Exception) =>
+  checkPermissions(authority, CURRENT, target, Exception);
 
 export default check;

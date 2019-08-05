@@ -1,9 +1,15 @@
-import Nightmare from 'nightmare';
+const BASE_URL = `http://localhost:${process.env.PORT || 8000}`;
 
 describe('Homepage', () => {
+  beforeAll(async () => {
+    jest.setTimeout(1000000);
+  });
   it('it should have logo text', async () => {
-    const page = Nightmare().goto('http://localhost:8000');
-    const text = await page.wait('h1').evaluate(() => document.body.innerHTML).end();
-    expect(text).toContain('<h1>Ant Design Pro</h1>');
+    await page.goto(BASE_URL);
+    await page.waitForSelector('h1', {
+      timeout: 5000,
+    });
+    const text = await page.evaluate(() => document.getElementsByTagName('h1')[0].innerText);
+    expect(text).toContain('Ant Design Pro');
   });
 });

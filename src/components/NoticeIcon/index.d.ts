@@ -1,45 +1,27 @@
 import * as React from 'react';
-export interface NoticeIconData {
-  avatar?: string;
-  title?: React.ReactNode;
-  description?: React.ReactNode;
-  datetime?: React.ReactNode;
-  extra?: React.ReactNode;
-  style?: React.CSSProperties;
-}
+import NoticeIconTab, { INoticeIconData } from './NoticeIconTab';
 
-export interface NoticeIconProps {
+export interface INoticeIconProps {
   count?: number;
+  bell?: React.ReactNode;
   className?: string;
   loading?: boolean;
-  onClear?: (tableTile: string) => void;
-  onItemClick?: (item: NoticeIconData, tabProps: NoticeIconProps) => void;
-  onTabChange?: (tableTile: string) => void;
-  popupAlign?: {
-    points?: [string, string];
-    offset?: [number, number];
-    targetOffset?: [number, number];
-    overflow?: any;
-    useCssRight?: boolean;
-    useCssBottom?: boolean;
-    useCssTransform?: boolean;
-  };
+  onClear?: (tabName: string) => void;
+  onItemClick?: (item: INoticeIconData, tabProps: INoticeIconProps) => void;
+  onLoadMore?: (tabProps: INoticeIconProps) => void;
+  onTabChange?: (tabTile: string) => void;
   style?: React.CSSProperties;
   onPopupVisibleChange?: (visible: boolean) => void;
   popupVisible?: boolean;
-  locale?: { emptyText: string; clear: string };
+  locale?: {
+    emptyText: string;
+    clear: string;
+    loadedAll: string;
+    loadMore: string;
+  };
+  clearClose?: boolean;
 }
 
-export interface NoticeIconTabProps {
-  list?: Array<NoticeIconData>;
-  title?: string;
-  emptyText?: React.ReactNode;
-  emptyImage?: string;
-  style?: React.CSSProperties;
-}
-
-export class NoticeIconTab extends React.Component<NoticeIconTabProps, any> {}
-
-export default class NoticeIcon extends React.Component<NoticeIconProps, any> {
-  static Tab: typeof NoticeIconTab;
+export default class NoticeIcon extends React.Component<INoticeIconProps, any> {
+  public static Tab: typeof NoticeIconTab;
 }

@@ -1,10 +1,13 @@
-@import "~antd/lib/style/themes/default.less";
+@import '~antd/lib/style/themes/default.less';
 
 .list {
   max-height: 400px;
   overflow: auto;
+  &::-webkit-scrollbar {
+    display: none;
+  }
   .item {
-    transition: all .3s;
+    transition: all 0.3s;
     overflow: hidden;
     cursor: pointer;
     padding-left: 24px;
@@ -18,9 +21,12 @@
       background: #fff;
       margin-top: 4px;
     }
+    .iconElement {
+      font-size: 32px;
+    }
 
     &.read {
-      opacity: .4;
+      opacity: 0.4;
     }
     &:last-child {
       border-bottom: 0;
@@ -49,6 +55,16 @@
       margin-top: -1.5px;
     }
   }
+  .loadMore {
+    padding: 8px 0;
+    cursor: pointer;
+    color: @primary-6;
+    text-align: center;
+    &.loadedAll {
+      cursor: unset;
+      color: rgba(0, 0, 0, 0.25);
+    }
+  }
 }
 
 .notFound {
@@ -69,7 +85,7 @@
   color: @text-color;
   border-radius: 0 0 @border-radius-base @border-radius-base;
   border-top: 1px solid @border-color-split;
-  transition: all .3s;
+  transition: all 0.3s;
   cursor: pointer;
 
   &:hover {

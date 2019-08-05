@@ -1,55 +1,83 @@
 import React from 'react';
-import { Input, Icon } from 'antd';
+import { Icon } from 'antd';
 import styles from './index.less';
 
-const map = {
+export default {
   UserName: {
-    component: Input,
     props: {
       size: 'large',
+      id: 'userName',
       prefix: <Icon type="user" className={styles.prefixIcon} />,
       placeholder: 'admin',
     },
-    rules: [{
-      required: true, message: 'Please enter username！',
-    }],
+    rules: [
+      {
+        required: true,
+        message: 'Please enter username!',
+      },
+    ],
+  },
+  Email: {
+    props: {
+      size: 'large',
+      id: 'email',
+      prefix: <Icon type="mail" className={styles.prefixIcon} />,
+      placeholder: 'Email',
+    },
+    rules: [
+      {
+        required: true,
+        message: 'Email is required',
+      },
+      {
+        type: 'email',
+        message: 'Wrong email format',
+      },
+    ],
   },
   Password: {
-    component: Input,
     props: {
       size: 'large',
       prefix: <Icon type="lock" className={styles.prefixIcon} />,
       type: 'password',
+      id: 'password',
       placeholder: '888888',
     },
-    rules: [{
-      required: true, message: 'Please enter password！',
-    }],
+    rules: [
+      {
+        required: true,
+        message: 'Please enter password!',
+      },
+    ],
   },
   Mobile: {
-    component: Input,
     props: {
       size: 'large',
       prefix: <Icon type="mobile" className={styles.prefixIcon} />,
-      placeholder: 'Phone number',
+      placeholder: 'mobile number',
     },
-    rules: [{
-      required: true, message: 'Please enter phone number！',
-    }, {
-      pattern: /^(^\+62\s?|^0)(\d{3,4}-?){2}\d{3,4}$/, message: 'Please enter correct phone number',
-    }],
+    rules: [
+      {
+        required: true,
+        message: 'Please enter mobile number!',
+      },
+      {
+        pattern: /^1\d{10}$/,
+        message: 'Wrong mobile number format!',
+      },
+    ],
   },
   Captcha: {
-    component: Input,
     props: {
       size: 'large',
       prefix: <Icon type="mail" className={styles.prefixIcon} />,
-      placeholder: 'Verification code',
+      placeholder: 'captcha',
     },
-    rules: [{
-      required: true, message: 'Please enter verification code！',
-    }],
+    rules: [
+      {
+        required: true,
+        message: 'Please enter Captcha!',
+      },
+    ],
   },
 };
-
-export default map;

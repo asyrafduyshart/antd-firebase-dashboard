@@ -1,9 +1,4 @@
-import { query as queryUsers } from '../services/user';
-import { getCurrentFirebaseUser } from '../services/firebase';
-import { setAuthority } from '../utils/authority';
-import { reloadAuthorized } from '../utils/Authorized';
-
-import store from '../index';
+import { query as queryUsers, queryCurrent } from '@/services/user';
 
 export default {
   namespace: 'user',
@@ -22,26 +17,11 @@ export default {
       });
     },
     *fetchCurrent(_, { call, put }) {
-      const user = yield call(getCurrentFirebaseUser);
-      yield setAuthority(user.authority);
-      reloadAuthorized();
-
-      try {
-        yield put({
-          type: 'saveCurrentUser',
-          payload: {
-            avatar: 'https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png',
-            name: user.displayName,
-            notifyCount: 12,
-            userid: user.uid,
-          },
-        });
-      } catch (error) {
-        const { dispatch } = store;
-        dispatch({
-          type: 'login/logout',
-        });
-      }
+      const response = yield call(queryCurrent);
+      yield put({
+        type: 'saveCurrentUser',
+        payload: response,
+      });
     },
   },
 
@@ -55,7 +35,7 @@ export default {
     saveCurrentUser(state, action) {
       return {
         ...state,
-        currentUser: action.payload,
+        currentUser: action.payload || {},
       };
     },
     changeNotifyCount(state, action) {
@@ -63,10 +43,10 @@ export default {
         ...state,
         currentUser: {
           ...state.currentUser,
-          notifyCount: action.payload,
+          notifyCount: action.payload.totalCount,
+          unreadCount: action.payload.unreadCount,
         },
       };
     },
-
   },
 };

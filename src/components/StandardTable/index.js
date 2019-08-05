@@ -4,7 +4,7 @@ import styles from './index.less';
 
 function initTotalList(columns) {
   const totalList = [];
-  columns.forEach((column) => {
+  columns.forEach(column => {
     if (column.needTotal) {
       totalList.push({ ...column, total: 0 });
     }
@@ -24,46 +24,53 @@ class StandardTable extends PureComponent {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
+  static getDerivedStateFromProps(nextProps) {
     // clean state
     if (nextProps.selectedRows.length === 0) {
       const needTotalList = initTotalList(nextProps.columns);
-      this.setState({
+      return {
         selectedRowKeys: [],
         needTotalList,
-      });
+      };
     }
+    return null;
   }
 
   handleRowSelectChange = (selectedRowKeys, selectedRows) => {
-    let needTotalList = [...this.state.needTotalList];
-    needTotalList = needTotalList.map((item) => {
-      return {
-        ...item,
-        total: selectedRows.reduce((sum, val) => {
-          return sum + parseFloat(val[item.dataIndex], 10);
-        }, 0),
-      };
-    });
-
-    if (this.props.onSelectRow) {
-      this.props.onSelectRow(selectedRows);
+    let { needTotalList } = this.state;
+    needTotalList = needTotalList.map(item => ({
+      ...item,
+      total: selectedRows.reduce((sum, val) => sum + parseFloat(val[item.dataIndex], 10), 0),
+    }));
+    const { onSelectRow } = this.props;
+    if (onSelectRow) {
+      onSelectRow(selectedRows);
     }
 
     this.setState({ selectedRowKeys, needTotalList });
-  }
+  };
 
   handleTableChange = (pagination, filters, sorter) => {
-    this.props.onChange(pagination, filters, sorter);
-  }
+    const { onChange } = this.props;
+    if (onChange) {
+      onChange(pagination, filters, sorter);
+    }
+  };
 
   cleanSelectedKeys = () => {
     this.handleRowSelectChange([], []);
-  }
+  };
 
   render() {
     const { selectedRowKeys, needTotalList } = this.state;
-    const { data, loading, columns, footer } = this.props;
+    const { data = {}, rowKey, ...rest } = this.props;
+    const { list = [], pagination } = data;
+
+    const paginationProps = {
+      showSizeChanger: true,
+      showQuickJumper: true,
+      ...pagination,
+    };
 
     const rowSelection = {
       selectedRowKeys,
@@ -77,35 +84,34 @@ class StandardTable extends PureComponent {
       <div className={styles.standardTable}>
         <div className={styles.tableAlert}>
           <Alert
-            message={(
+            message={
               <Fragment>
-                Chosen <a style={{ fontWeight: 600 }}>{selectedRowKeys.length}</a> Item&nbsp;&nbsp;
-                {
-                  needTotalList.map(item => (
-                    <span style={{ marginLeft: 8 }} key={item.dataIndex}>{item.title}Total&nbsp;
-                      <span style={{ fontWeight: 600 }}>
-                        {item.render ? item.render(item.total) : item.total}
-                      </span>
+                已选择 <a style={{ fontWeight: 600 }}>{selectedRowKeys.length}</a> 项&nbsp;&nbsp;
+                {needTotalList.map(item => (
+                  <span style={{ marginLeft: 8 }} key={item.dataIndex}>
+                    {item.title}
+                    总计&nbsp;
+                    <span style={{ fontWeight: 600 }}>
+                      {item.render ? item.render(item.total) : item.total}
                     </span>
-                    )
-                  )
-                }
-                <a onClick={this.cleanSelectedKeys} style={{ marginLeft: 24 }}>Empty</a>
+                  </span>
+                ))}
+                <a onClick={this.cleanSelectedKeys} style={{ marginLeft: 24 }}>
+                  清空
+                </a>
               </Fragment>
-            )}
+            }
             type="info"
             showIcon
           />
         </div>
         <Table
-          loading={loading}
-          rowKey={record => record.key}
+          rowKey={rowKey || 'key'}
           rowSelection={rowSelection}
-          dataSource={data}
-          columns={columns}
-          pagination={false}
+          dataSource={list}
+          pagination={paginationProps}
           onChange={this.handleTableChange}
-          footer={() => footer}
+          {...rest}
         />
       </div>
     );

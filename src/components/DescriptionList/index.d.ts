@@ -1,5 +1,7 @@
 import * as React from 'react';
-export interface DescriptionListProps {
+import Description from './Description';
+
+export interface IDescriptionListProps {
   layout?: 'horizontal' | 'vertical';
   col?: number;
   title: React.ReactNode;
@@ -8,17 +10,6 @@ export interface DescriptionListProps {
   style?: React.CSSProperties;
 }
 
-declare class Description extends React.Component<
-  {
-    term: React.ReactNode;
-    style?: React.CSSProperties;
-  },
-  any
-> {}
-
-export default class DescriptionList extends React.Component<
-  DescriptionListProps,
-  any
-> {
-  static Description: typeof Description;
+export default class DescriptionList extends React.Component<IDescriptionListProps, any> {
+  public static Description: typeof Description;
 }
