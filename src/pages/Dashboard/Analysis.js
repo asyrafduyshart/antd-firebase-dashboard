@@ -1,10 +1,8 @@
 import React, { Component, Suspense } from 'react';
 import { connect } from 'dva';
 import { Row, Col, Icon, Menu, Dropdown } from 'antd';
-
 import GridContent from '@/components/PageHeaderWrapper/GridContent';
 import { getTimeDistance } from '@/utils/utils';
-
 import styles from './Analysis.less';
 import PageLoading from '@/components/PageLoading';
 
@@ -35,12 +33,7 @@ class Analysis extends Component {
   }
 
   componentWillUnmount() {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'chart/clear',
-    });
     cancelAnimationFrame(this.reqRef);
-    clearTimeout(this.timeoutId);
   }
 
   handleChangeSalesType = e => {
@@ -145,7 +138,7 @@ class Analysis extends Component {
           />
         </Suspense>
         <div className={styles.twoColLayout}>
-          <Row gutter={24}>
+          <Row gutter={24} type="flex">
             <Col xl={12} lg={24} md={24} sm={24} xs={24}>
               <Suspense fallback={null}>
                 <TopSearch

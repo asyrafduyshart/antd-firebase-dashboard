@@ -6,18 +6,23 @@ import { urlToList } from '../_utils/pathTools';
 import { getMenuMatches } from './SiderMenuUtils';
 import { isUrl } from '@/utils/utils';
 import styles from './index.less';
+import IconFont from '@/components/IconFont';
 
 const { SubMenu } = Menu;
 
 // Allow menu.js config icon as string or ReactNode
 //   icon: 'setting',
+//   icon: 'icon-geren' #For Iconfont ,
 //   icon: 'http://demo.com/icon.png',
 //   icon: <Icon type="setting" />,
 const getIcon = icon => {
-  if (typeof icon === 'string' && isUrl(icon)) {
-    return <img src={icon} alt="icon" className={styles.icon} />;
-  }
   if (typeof icon === 'string') {
+    if (isUrl(icon)) {
+      return <Icon component={() => <img src={icon} alt="icon" className={styles.icon} />} />;
+    }
+    if (icon.startsWith('icon-')) {
+      return <IconFont type={icon} />;
+    }
     return <Icon type={icon} />;
   }
   return icon;
@@ -28,13 +33,13 @@ export default class BaseMenu extends PureComponent {
    * 获得菜单子节点
    * @memberof SiderMenu
    */
-  getNavMenuItems = (menusData, parent) => {
+  getNavMenuItems = menusData => {
     if (!menusData) {
       return [];
     }
     return menusData
       .filter(item => item.name && !item.hideInMenu)
-      .map(item => this.getSubMenuOrItem(item, parent))
+      .map(item => this.getSubMenuOrItem(item))
       .filter(item => item);
   };
 
@@ -118,6 +123,17 @@ export default class BaseMenu extends PureComponent {
     return `/${path || ''}`.replace(/\/+/g, '/');
   };
 
+  getPopupContainer = (fixedHeader, layout) => {
+    if (fixedHeader && layout === 'topmenu') {
+      return this.wrap;
+    }
+    return document.body;
+  };
+
+  getRef = ref => {
+    this.wrap = ref;
+  };
+
   render() {
     const {
       openKeys,
@@ -126,6 +142,8 @@ export default class BaseMenu extends PureComponent {
       location: { pathname },
       className,
       collapsed,
+      fixedHeader,
+      layout,
     } = this.props;
     // if pathname can't match, use the nearest parent's key
     let selectedKeys = this.getSelectedMenuKeys(pathname);
@@ -144,18 +162,22 @@ export default class BaseMenu extends PureComponent {
     });
 
     return (
-      <Menu
-        key="Menu"
-        mode={mode}
-        theme={theme}
-        onOpenChange={handleOpenChange}
-        selectedKeys={selectedKeys}
-        style={style}
-        className={cls}
-        {...props}
-      >
-        {this.getNavMenuItems(menuData)}
-      </Menu>
+      <>
+        <Menu
+          key="Menu"
+          mode={mode}
+          theme={theme}
+          onOpenChange={handleOpenChange}
+          selectedKeys={selectedKeys}
+          style={style}
+          className={cls}
+          {...props}
+          getPopupContainer={() => this.getPopupContainer(fixedHeader, layout)}
+        >
+          {this.getNavMenuItems(menuData)}
+        </Menu>
+        <div ref={this.getRef} />
+      </>
     );
   }
 }

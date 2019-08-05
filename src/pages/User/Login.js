@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { formatMessage, FormattedMessage } from 'umi/locale';
+import { formatMessage, FormattedMessage } from 'umi-plugin-react/locale';
 import Link from 'umi/link';
-import { Checkbox, Alert, Icon } from 'antd';
+import { Checkbox, Alert, Modal, Icon } from 'antd';
 import Login from '@/components/Login';
 import styles from './Login.less';
 
-const { Tab, Password, Mobile, Captcha, Submit, Email } = Login;
+const { Tab, Email, Password, Mobile, Captcha, Submit } = Login;
 
 @connect(({ login, loading }) => ({
   login,
@@ -23,7 +23,6 @@ class LoginPage extends Component {
   };
 
   onGetCaptcha = () =>
-    // eslint-disable-next-line compat/compat
     new Promise((resolve, reject) => {
       this.loginForm.validateFields(['mobile'], {}, (err, values) => {
         if (err) {
@@ -36,6 +35,10 @@ class LoginPage extends Component {
           })
             .then(resolve)
             .catch(reject);
+
+          Modal.info({
+            title: formatMessage({ id: 'app.login.verification-code-warning' }),
+          });
         }
       });
     });
@@ -101,7 +104,10 @@ class LoginPage extends Component {
                   message: formatMessage({ id: 'validation.password.required' }),
                 },
               ]}
-              onPressEnter={() => this.loginForm.validateFields(this.handleSubmit)}
+              onPressEnter={e => {
+                e.preventDefault();
+                this.loginForm.validateFields(this.handleSubmit);
+              }}
             />
           </Tab>
           <Tab key="mobile" tab={formatMessage({ id: 'app.login.tab-login-mobile' })}>

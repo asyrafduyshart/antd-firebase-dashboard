@@ -152,7 +152,7 @@ export function isUrl(path) {
 
 export function formatWan(val) {
   const v = val * 1;
-  if (!v || Number.isNaN(v)) return '';
+  if (!v) return '';
 
   let result = val;
   if (val > 10000) {
@@ -181,3 +181,14 @@ export function formatWan(val) {
 export function isAntdPro() {
   return window.location.hostname === 'preview.pro.ant.design';
 }
+
+export const importCDN = (url, name) =>
+  new Promise(resolve => {
+    const dom = document.createElement('script');
+    dom.src = url;
+    dom.type = 'text/javascript';
+    dom.onload = () => {
+      resolve(window[name]);
+    };
+    document.head.appendChild(dom);
+  });
