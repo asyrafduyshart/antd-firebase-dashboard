@@ -36,3 +36,6 @@ lambda/mock/index.js
 # screenshot
 screenshot
 .firebase
+
+#firebase
+config/firebase.config.js
