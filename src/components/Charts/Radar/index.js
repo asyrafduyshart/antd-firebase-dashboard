@@ -6,32 +6,34 @@ import styles from './index.less';
 
 /* eslint react/no-danger:0 */
 @autoHeight()
-export default class Radar extends Component {
+class Radar extends Component {
   state = {
     legendData: [],
   };
 
   componentDidMount() {
-    this.getLengendData();
+    this.getLegendData();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (this.props.data !== nextProps.data) {
-      this.getLengendData();
+  componentDidUpdate(preProps) {
+    const { data } = this.props;
+    if (data !== preProps.data) {
+      this.getLegendData();
     }
   }
 
-  getG2Instance = (chart) => {
+  getG2Instance = chart => {
     this.chart = chart;
   };
 
   // for custom lengend view
-  getLengendData = () => {
+  getLegendData = () => {
     if (!this.chart) return;
     const geom = this.chart.getAllGeoms()[0]; // 获取所有的图形
+    if (!geom) return;
     const items = geom.get('dataArray') || []; // 获取图形对应的
 
-    const legendData = items.map((item) => {
+    const legendData = items.map(item => {
       // eslint-disable-next-line
       const origins = item.map(t => t._origin);
       const result = {
@@ -49,7 +51,7 @@ export default class Radar extends Component {
     });
   };
 
-  handleRef = (n) => {
+  handleRef = n => {
     this.node = n;
   };
 
@@ -60,9 +62,7 @@ export default class Radar extends Component {
     const { legendData } = this.state;
     legendData[i] = newItem;
 
-    const filteredLegendData = legendData
-      .filter(l => l.checked)
-      .map(l => l.name);
+    const filteredLegendData = legendData.filter(l => l.checked).map(l => l.name);
 
     if (this.chart) {
       this.chart.filter('name', val => filteredLegendData.indexOf(val) > -1);
@@ -92,7 +92,7 @@ export default class Radar extends Component {
       title,
       hasLegend = false,
       forceFit = true,
-      tickCount = 4,
+      tickCount = 5,
       padding = [35, 30, 16, 30],
       animate = true,
       colors = defaultColors,
@@ -143,12 +143,7 @@ export default class Radar extends Component {
               },
             }}
           />
-          <Geom
-            type="line"
-            position="label*value"
-            color={['name', colors]}
-            size={1}
-          />
+          <Geom type="line" position="label*value" color={['name', colors]} size={1} />
           <Geom
             type="point"
             position="label*value"
@@ -178,10 +173,12 @@ export default class Radar extends Component {
                   <h6>{item.value}</h6>
                 </div>
               </Col>
-           ))}
+            ))}
           </Row>
         )}
       </div>
     );
   }
 }
+
+export default Radar;

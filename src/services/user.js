@@ -1,11 +1,9 @@
-import request from '../utils/request';
-import { FIREBASE_HOST_MOCK } from '../config/api-config';
-
+import request from '@/utils/request';
 
 export async function query() {
-  return request(`${FIREBASE_HOST_MOCK}/api/users`);
+  return request('/api/users');
 }
 
 export async function queryCurrent() {
-  return request(`${FIREBASE_HOST_MOCK}/api/user`);
+  return request('/api/currentUser');
 }

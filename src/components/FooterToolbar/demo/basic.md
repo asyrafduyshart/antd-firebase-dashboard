@@ -1,12 +1,12 @@
 ---
 order: 0
 title:
-  - zh-CN: 演示
-  - en-US: demo
+  zh-CN: 演示
+  en-US: demo
 iframe: 400
 ---
 
-## zh-CN
+## zh-CN
 
 浮动固定页脚。
 
@@ -14,7 +14,7 @@ iframe: 400
 
 Fixed to the footer.
 
-````jsx
+```jsx
 import FooterToolbar from 'ant-design-pro/lib/FooterToolbar';
 import { Button } from 'antd';
 
@@ -39,6 +39,7 @@ ReactDOM.render(
       <Button>Cancel</Button>
       <Button type="primary">Submit</Button>
     </FooterToolbar>
-  </div>
-, mountNode);
-````
+  </div>,
+  mountNode
+);
+```

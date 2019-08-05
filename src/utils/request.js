@@ -1,7 +1,10 @@
-import fetch from 'dva/fetch';
+/**
+ * request 网络请求工具
+ * 更详细的api文档: https://bigfish.alipay.com/doc/api#request
+ */
+import { extend } from 'umi-request';
 import { notification } from 'antd';
-import { routerRedux } from 'dva/router';
-import store from '../index';
+import router from 'umi/router';
 
 const codeMessage = {
   200: 'The server successfully returned the requested data. ',
@@ -20,78 +23,50 @@ const codeMessage = {
   503: 'The service is unavailable, the server is temporarily overloaded or serviced. ',
   504: 'Gateway timed out. ',
 };
-function checkStatus(response) {
-  if (response.status >= 200 && response.status < 300) {
-    return response;
-  }
-  const errorText = codeMessage[response.status] || response.statusText;
-  notification.error({
-    message: `Request error ${response.status}: ${response.url}`,
-    description: errorText,
-  });
-  const error = new Error(errorText);
-  error.name = response.status;
-  error.response = response;
-  throw error;
-}
 
 /**
- * Requests a URL, returning a promise.
- *
- * @param  {string} url       The URL we want to request
- * @param  {object} [options] The options we want to pass to "fetch"
- * @return {object}           An object containing either "data" or "err"
+ * 异常处理程序
  */
-export default function request(url, options) {
-  const defaultOptions = {
-    // credentials: 'include',
-  };
-  const newOptions = { ...defaultOptions, ...options };
-  if (newOptions.method === 'POST' || newOptions.method === 'PUT') {
-    if (!(newOptions.body instanceof FormData)) {
-      newOptions.headers = {
-        Accept: 'application/json',
-        'Content-Type': 'application/json; charset=utf-8',
-        ...newOptions.headers,
-      };
-      // newOptions.body = JSON.stringify(newOptions.body);
-    } else {
-      // newOptions.body is FormData
-      newOptions.headers = {
-        Accept: 'application/json',
-        'Content-Type': 'multipart/form-data',
-        ...newOptions.headers,
-      };
-    }
-  }
+const errorHandler = error => {
+  const { response = {} } = error;
+  const errortext = codeMessage[response.status] || response.statusText;
+  const { status, url } = response;
 
-  return fetch(url, newOptions)
-    .then(checkStatus)
-    .then((response) => {
-      if (newOptions.method === 'DELETE' || response.status === 204) {
-        return response.text();
-      }
-      return response.json();
-    })
-    .catch((e) => {
-      const { dispatch } = store;
-      const status = e.name;
-      if (status === 401) {
-        dispatch({
-          type: 'login/logout',
-        });
-        return;
-      }
-      if (status === 403) {
-        dispatch(routerRedux.push('/exception/403'));
-        return;
-      }
-      if (status <= 504 && status >= 500) {
-        dispatch(routerRedux.push('/exception/500'));
-        return;
-      }
-      if (status >= 404 && status < 422) {
-        dispatch(routerRedux.push('/exception/404'));
-      }
+  if (status === 401) {
+    notification.error({
+      message: '未登录或登录已过期，请重新登录。',
     });
-}
+    // @HACK
+    /* eslint-disable no-underscore-dangle */
+    window.g_app._store.dispatch({
+      type: 'login/logout',
+    });
+    return;
+  }
+  notification.error({
+    message: `请求错误 ${status}: ${url}`,
+    description: errortext,
+  });
+  // environment should not be used
+  if (status === 403) {
+    router.push('/exception/403');
+    return;
+  }
+  if (status <= 504 && status >= 500) {
+    router.push('/exception/500');
+    return;
+  }
+  if (status >= 404 && status < 422) {
+    router.push('/exception/404');
+  }
+};
+
+/**
+ * 配置request请求时的默认参数
+ */
+const request = extend({
+  errorHandler, // 默认错误处理
+  credentials: 'include', // 默认请求是否带上cookie
+});
+
+export default request;

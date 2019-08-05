@@ -6,55 +6,40 @@ import classNames from 'classnames';
 import ReactFitText from 'react-fittext';
 import Debounce from 'lodash-decorators/debounce';
 import Bind from 'lodash-decorators/bind';
-import autoHeight from '../autoHeight';
-
 import styles from './index.less';
 
 /* eslint react/no-danger:0 */
-@autoHeight()
-export default class Pie extends Component {
+class Pie extends Component {
   state = {
+    height: 0,
     legendData: [],
     legendBlock: false,
   };
 
-  componentDidMount() {
-    this.getLengendData();
-    this.resize();
-    window.addEventListener('resize', this.resize);
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (this.props.data !== nextProps.data) {
+  componentDidUpdate(preProps) {
+    const { data } = this.props;
+    if (data !== preProps.data) {
       // because of charts data create when rendered
       // so there is a trick for get rendered time
-      this.setState(
-        {
-          legendData: [...this.state.legendData],
-        },
-        () => {
-          this.getLengendData();
-        }
-      );
+      this.getLegendData();
     }
   }
 
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.resize);
-    this.resize.cancel();
-  }
-
-  getG2Instance = (chart) => {
+  getG2Instance = chart => {
     this.chart = chart;
+    requestAnimationFrame(() => {
+      this.getLegendData();
+    });
   };
 
   // for custom lengend view
-  getLengendData = () => {
+  getLegendData = () => {
     if (!this.chart) return;
     const geom = this.chart.getAllGeoms()[0]; // 获取所有的图形
+    if (!geom) return;
     const items = geom.get('dataArray') || []; // 获取图形对应的
 
-    const legendData = items.map((item) => {
+    const legendData = items.map(item => {
       /* eslint no-underscore-dangle:0 */
       const origin = item[0]._origin;
       origin.color = item[0].color;
@@ -67,29 +52,7 @@ export default class Pie extends Component {
     });
   };
 
-  // for window resize auto responsive legend
-  @Bind()
-  @Debounce(300)
-  resize() {
-    const { hasLegend } = this.props;
-    if (!hasLegend || !this.root) {
-      window.removeEventListener('resize', this.resize);
-      return;
-    }
-    if (this.root.parentNode.clientWidth <= 380) {
-      if (!this.state.legendBlock) {
-        this.setState({
-          legendBlock: true,
-        });
-      }
-    } else if (this.state.legendBlock) {
-      this.setState({
-        legendBlock: false,
-      });
-    }
-  }
-
-  handleRoot = (n) => {
+  handleRoot = n => {
     this.root = n;
   };
 
@@ -111,6 +74,29 @@ export default class Pie extends Component {
     });
   };
 
+  // for window resize auto responsive legend
+  @Bind()
+  @Debounce(300)
+  resize() {
+    const { hasLegend } = this.props;
+    const { legendBlock } = this.state;
+    if (!hasLegend || !this.root) {
+      window.removeEventListener('resize', this.resize);
+      return;
+    }
+    if (this.root.parentNode.clientWidth <= 380) {
+      if (!legendBlock) {
+        this.setState({
+          legendBlock: true,
+        });
+      }
+    } else if (legendBlock) {
+      this.setState({
+        legendBlock: false,
+      });
+    }
+  }
+
   render() {
     const {
       valueFormat,
@@ -120,8 +106,7 @@ export default class Pie extends Component {
       className,
       style,
       height,
-      forceFit = true,
-      percent = 0,
+      percent,
       color,
       inner = 0.75,
       animate = true,
@@ -129,16 +114,25 @@ export default class Pie extends Component {
       lineWidth = 1,
     } = this.props;
 
-    const { legendData, legendBlock } = this.state;
+    const { legendData, height: stateHeight, legendBlock } = this.state;
     const pieClassName = classNames(styles.pie, className, {
       [styles.hasLegend]: !!hasLegend,
       [styles.legendBlock]: legendBlock,
     });
 
+    const {
+      data: propsData,
+      selected: propsSelected = true,
+      tooltip: propsTooltip = true,
+    } = this.props;
+
+    let data = propsData || [];
+    let selected = propsSelected;
+    let tooltip = propsTooltip;
+
     const defaultColors = colors;
-    let data = this.props.data || [];
-    let selected = this.props.selected || true;
-    let tooltip = this.props.tooltip || true;
+    selected = selected || true;
+    tooltip = tooltip || true;
     let formatColor;
 
     const scale = {
@@ -151,15 +145,14 @@ export default class Pie extends Component {
       },
     };
 
-    if (percent) {
+    if (percent || percent === 0) {
       selected = false;
       tooltip = false;
-      formatColor = (value) => {
+      formatColor = value => {
         if (value === '占比') {
           return color || 'rgba(24, 144, 255, 0.85)';
-        } else {
-          return '#F0F2F5';
         }
+        return '#F0F2F5';
       };
 
       data = [
@@ -198,8 +191,7 @@ export default class Pie extends Component {
           <div className={styles.chart}>
             <Chart
               scale={scale}
-              height={height}
-              forceFit={forceFit}
+              height={height || stateHeight}
               data={dv}
               padding={padding}
               animate={animate}
@@ -212,7 +204,7 @@ export default class Pie extends Component {
                 tooltip={tooltip && tooltipFormat}
                 type="intervalStack"
                 position="percent"
-                color={['x', percent ? formatColor : defaultColors]}
+                color={['x', percent || percent === 0 ? formatColor : defaultColors]}
                 selected={selected}
               />
             </Chart>
@@ -221,31 +213,29 @@ export default class Pie extends Component {
               <div className={styles.total}>
                 {subTitle && <h4 className="pie-sub-title">{subTitle}</h4>}
                 {/* eslint-disable-next-line */}
-                {total && <div className="pie-stat" dangerouslySetInnerHTML={{ __html: total }} />}
+                {total && (
+                  <div className="pie-stat">{typeof total === 'function' ? total() : total}</div>
+                )}
               </div>
             )}
           </div>
         </ReactFitText>
-
         {hasLegend && (
           <ul className={styles.legend}>
             {legendData.map((item, i) => (
               <li key={item.x} onClick={() => this.handleLegendClick(item, i)}>
                 <span
                   className={styles.dot}
-                  style={{ backgroundColor: !item.checked ? '#aaa' : item.color }}
+                  style={{
+                    backgroundColor: !item.checked ? '#aaa' : item.color,
+                  }}
                 />
                 <span className={styles.legendTitle}>{item.x}</span>
                 <Divider type="vertical" />
                 <span className={styles.percent}>
-                  {`${(isNaN(item.percent) ? 0 : item.percent * 100).toFixed(2)}%`}
+                  {`${(Number.isNaN(item.percent) ? 0 : item.percent * 100).toFixed(2)}%`}
                 </span>
-                <span
-                  className={styles.value}
-                  dangerouslySetInnerHTML={{
-                    __html: valueFormat ? valueFormat(item.y) : item.y,
-                  }}
-                />
+                <span className={styles.value}>{valueFormat ? valueFormat(item.y) : item.y}</span>
               </li>
             ))}
           </ul>
@@ -254,3 +244,5 @@ export default class Pie extends Component {
     );
   }
 }
+
+export default Pie;

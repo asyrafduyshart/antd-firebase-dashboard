@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 export interface NumberInfoProps {
   title?: React.ReactNode | string;
   subTitle?: React.ReactNode | string;
@@ -7,6 +7,7 @@ export interface NumberInfoProps {
   theme?: string;
   gap?: number;
   subTotal?: number;
+  suffix?: string;
   style?: React.CSSProperties;
 }
 

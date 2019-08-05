@@ -5,7 +5,7 @@ title: Classic
 
 典型结果页面。
 
-````jsx
+```jsx
 import Result from 'ant-design-pro/lib/Result';
 import { Button, Row, Col, Icon, Steps } from 'antd';
 
@@ -15,7 +15,7 @@ const desc1 = (
   <div style={{ fontSize: 14, position: 'relative', left: 38 }}>
     <div style={{ marginTop: 8, marginBottom: 4 }}>
       曲丽丽
-      <Icon type="dingding-o" style={{ marginLeft: 8 }} />
+      <Icon type="dingding" style={{ marginLeft: 8 }} />
     </div>
     <div style={{ marginTop: 8, marginBottom: 4 }}>2016-12-12 12:32</div>
   </div>
@@ -25,9 +25,11 @@ const desc2 = (
   <div style={{ fontSize: 14, position: 'relative', left: 38 }}>
     <div style={{ marginTop: 8, marginBottom: 4 }}>
       周毛毛
-      <Icon type="dingding-o" style={{ color: '#00A0E9', marginLeft: 8 }} />
+      <Icon type="dingding" style={{ color: '#00A0E9', marginLeft: 8 }} />
     </div>
-    <div style={{ marginTop: 8, marginBottom: 4 }}><a href="">催一下</a></div>
+    <div style={{ marginTop: 8, marginBottom: 4 }}>
+      <a href="">催一下</a>
+    </div>
   </div>
 );
 
@@ -75,6 +77,7 @@ ReactDOM.render(
     extra={extra}
     actions={actions}
     style={{ width: '100%' }}
-  />
-, mountNode);
-````
+  />,
+  mountNode
+);
+```

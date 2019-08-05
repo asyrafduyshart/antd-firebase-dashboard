@@ -1,23 +1,25 @@
-import * as React from 'react';
-export interface TagSelectProps {
-  onChange?: (value: Array<string>) => void;
-  expandable?: boolean;
-  value?: Array<string>| Array<number>;
-  style?: React.CSSProperties;
-}
-export interface TagSelectOptionProps {
-  value: string| number;
-  style?: React.CSSProperties;
-}
+import React from 'react';
+import TagSelectOption, { TagSelectOptionProps } from './TagSelectOption';
 
-export class TagSelectOption extends React.Component<
-  TagSelectOptionProps,
-  any
-> {}
+export interface TagSelectProps {
+  onChange?: (value: string[]) => void;
+  expandable?: boolean;
+  value?: string[] | number[];
+  style?: React.CSSProperties;
+  hideCheckAll?: boolean;
+  actionsText?: {
+    expandText?: React.ReactNode;
+    collapseText?: React.ReactNode;
+    selectAllText?: React.ReactNode;
+  };
+  className: string;
+  Option: TagSelectOptionProps;
+  children: React.ReactElement<TagSelectOption> | Array<React.ReactElement<TagSelectOption>>;
+}
 
 export default class TagSelect extends React.Component<TagSelectProps, any> {
-  static Option: typeof TagSelectOption;
-  children:
+  public static Option: typeof TagSelectOption;
+  private children:
     | React.ReactElement<TagSelectOption>
     | Array<React.ReactElement<TagSelectOption>>;
 }

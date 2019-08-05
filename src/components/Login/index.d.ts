@@ -1,32 +1,25 @@
-import * as React from "react";
-import Button from "antd/lib/button";
+import Button from 'antd/lib/button';
+import React from 'react';
+import LoginItem, { LoginItemProps, LoginItemType } from './LoginItem';
+import LoginTab from './LoginTab';
+import { WrappedFormUtils } from 'antd/es/form/Form';
+import LoginSubmit from './LoginSubmit';
+
 export interface LoginProps {
   defaultActiveKey?: string;
   onTabChange?: (key: string) => void;
   style?: React.CSSProperties;
   onSubmit?: (error: any, values: any) => void;
+  className?: string;
 }
 
-export interface TabProps {
-  key?: string;
-  tab?: React.ReactNode;
+interface Login extends WrappedFormUtils {}
+declare class Login extends React.Component<LoginProps, any> {
+  public static Tab: typeof LoginTab;
+  public static UserName: React.FC<LoginItemProps>;
+  public static Password: React.FC<LoginItemProps>;
+  public static Mobile: React.FC<LoginItemProps>;
+  public static Captcha: React.FC<LoginItemProps>;
+  public static Submit: typeof LoginSubmit;
 }
-export class Tab extends React.Component<TabProps, any> {}
-
-export interface LoginItemProps {
-  name?: string;
-  rules?: any[];
-  style?: React.CSSProperties;
-  onGetCaptcha?: () => void;
-}
-
-export class LoginItem extends React.Component<LoginItemProps, any> {}
-
-export default class Login extends React.Component<LoginProps, any> {
-  static Tab: typeof Tab;
-  static UserName: typeof LoginItem;
-  static Password: typeof LoginItem;
-  static Mobile: typeof LoginItem;
-  static Captcha: typeof LoginItem;
-  static Submit: typeof Button;
-}
+export default Login;
